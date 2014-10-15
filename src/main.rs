@@ -94,8 +94,8 @@ impl<'a> Room<'a> {
 	}
 }
 
-fn init_rooms() -> HashMap<&'static str, Room<'static>> {
-	let mut ret: HashMap<&'static str, Room> = HashMap::new();
+fn init_rooms<'b>() -> HashMap<&'static str, Room<'b>> {
+	let mut ret: HashMap<&str, Room<'b>> = HashMap::new();
 
 	let start_name = "StartRoom";
 	let east_name = "EastRoom";
