@@ -76,6 +76,10 @@ impl<'a> Room<'a> {
 	}
 
 	fn link(first: &'a mut Room<'a>, direction_to_second: Direction, second: &'a mut Room<'a>) {
+		// TODO: How do I add the second Room to the first Room's set of valid directions,
+		// while also later doing the same for the second Room with the first Room? The second
+		// Room is already borrowed as immutable after this line, so it can't be borrowed as
+		// mutable when attempting to add the first to its directions. How can that be overcome?
 		first.directions.insert(direction_to_second, &*second);
 		let opposite_direction = reverse_direction(direction_to_second);
 		second.directions.insert(opposite_direction, &*first);
@@ -104,6 +108,11 @@ fn init_rooms<'b>() -> HashMap<&'static str, Room<'b>> {
 	let mut east_room = Room::new(east_name,
 		"A room to the east of the room you started in.");
 
+	// TODO: How do I get Rust to know that these references live long
+	// enough to be acceptable arguments to link? I guess Rust only sees
+	// them being created inside the function and not returned, so it thinks
+	// they only live in the function when they are actually having their
+	// ownership taken over by the HashMap which is getting returned?
 	Room::link(&mut start_room, East, &mut east_room);
 
 	ret.insert(start_name, start_room);
