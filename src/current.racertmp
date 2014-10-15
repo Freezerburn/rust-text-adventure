@@ -1,6 +1,7 @@
 use std::ascii::StrAsciiExt;
 use std::vec::Vec;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 
 #[deriving(Show, Eq, PartialEq, Hash)]
@@ -62,7 +63,7 @@ struct Room<'a> {
 	name: &'a str,
 	description: &'a str,
 	items: Vec<&'a Item<'a>>,
-	directions: HashMap<Direction, &'a Room<'a>>,
+	directions: HashMap<Direction, Rc<Room<'a>>>,
 }
 
 impl<'a> Room<'a> {
@@ -75,10 +76,10 @@ impl<'a> Room<'a> {
 		}
 	}
 
-	fn link(first: &'a mut Room<'a>, direction_to_second: Direction, second: &'a mut Room<'a>) {
-		first.directions.insert(direction_to_second, &*second);
+	fn link(first: Rc<Room<'a>>, direction_to_second: Direction, second: Rc<Room<'a>>) {
+		first.directions.insert(direction_to_second, second.clone());
 		let opposite_direction = reverse_direction(direction_to_second);
-		second.directions.insert(opposite_direction, &*first);
+		second.directions.insert(opposite_direction, first.clone());
 	}
 
 	fn add_item(&mut self, item: &'a Item) {
@@ -95,16 +96,16 @@ impl<'a> Room<'a> {
 }
 
 fn init_rooms() -> HashMap<&'static str, Room<'static>> {
-	let mut ret: HashMap<&'static str, Room> = HashMap::new();
+	let mut ret: HashMap<&'static str, Rc<Room<'static'> = HashMap::new();
 
 	let start_name = "StartRoom";
 	let east_name = "EastRoom";
-	let mut start_room = Room::new(start_name,
-		"A basic room");
-	let mut east_room = Room::new(east_name,
-		"A room to the east of the room you started in.");
+	let mut start_room = Rc::new(Room::new(start_name,
+		"A basic room"));
+	let mut east_room = Rc::new(Room::new(east_name,
+		"A room to the east of the room you started in."));
 
-	Room::link(&mut start_room, East, &mut east_room);
+	Room::link(start_room.clone(), East, east_room.clone());
 
 	ret.insert(start_name, start_room);
 	ret.insert(east_name, east_room);
